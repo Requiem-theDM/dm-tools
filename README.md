@@ -4,8 +4,7 @@
 ## Project Description
 This project is a set of tools designed to assist in running tabletop game sessions using the Book of Trials Ruleset.
 
-## Book of Trials Ruleset
-- https://docs.google.com/document/d/1p_RwhtKsnAQmfPTkylT3e4ozbonpYsL-1mCrwfyxOQw/edit?usp=sharing
+## [Book of Trials Ruleset](https://docs.google.com/document/d/1p_RwhtKsnAQmfPTkylT3e4ozbonpYsL-1mCrwfyxOQw/edit?usp=sharing)  
 
 ## Software Requirements
 - Python version 3.12.3 or higher
