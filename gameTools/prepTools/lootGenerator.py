@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import argparse as ap
 import numpy as np
 from gameTools.coreModules.playerManager import *
@@ -27,26 +26,42 @@ def generateTreasure(difficulty, players):
             lootByLevel.setdefault(int(fields[0]),int(fields[1]))
     totalTreasure = float(lootByLevel[averageLevel] * len(players) * float(difficulty) * (1 + 0.1 * (np.random.random() - 0.5)))
 
-    dungeonSize = int(input(f"How many rooms does this dungeon have? "))
-    print(f"## Treasure Number\tTreasure Value")
-    for room in range(dungeonSize):
-        roomTreasure = float(format(totalTreasure * (0.5 ** (room + 1)),'.2f'))
-        if roomTreasure > 0 and roomTreasure > 1:
-            print(f"## Treasure {room + 1}\t{roomTreasure} SP")
-        if roomTreasure > 0 and roomTreasure < 1:
-            print(f"## Treasure {room + 1}\t{float(format(roomTreasure * 100,'.2f'))} CP")
+    while True:
+        try:
+            dungeonSize = int(input(f"How many rooms does this dungeon have? "))
+            assert 0 < dungeonSize
+            break
+        except:
+            print(f"Invalid Response Received: \"{dungeonSize}\" Please Enter A Positive Integer.")
+        
+        print(f"## Treasure Number\tTreasure Value")
+        for room in range(dungeonSize):
+            roomTreasure = float(format(totalTreasure * (0.5 ** (room + 1)),'.2f'))
+            if roomTreasure > 0 and roomTreasure > 1:
+                print(f"## Treasure {room + 1}\t{roomTreasure} SP")
+            if roomTreasure > 0 and roomTreasure < 1:
+                print(f"## Treasure {room + 1}\t{float(format(roomTreasure * 100,'.2f'))} CP")
     
 
 def exitPrompt():
-    exitState = input(f"Generate another dungeon?\nYes or No: ")
+    while True:
+        try:
+            exitState = input(f"Generate another dungeon?\nYes or No: ")
+            assert exitState.lower() in ["y","n","yes","no"]
+            break
+        except:
+            print(f"Invalid Response Received: \"{exitState}\" Please Enter Yes or No.")
     if exitState.lower() in ["yes","y"]:
-        newDifficulty = float(input(f"What difficulty level should the new dungeon be? "))
+        while True:
+            try:
+                newDifficulty = float(input(f"What difficulty level should the new dungeon be? "))
+                assert 0 < newDifficulty
+                break
+            except:
+                print(f"Invalid Response Received: \"{newDifficulty}\" Please Enter A Positive Number.")
         main(1, newDifficulty)
-    elif exitState.lower() in ["no","n"]:
-        exit()
     else:
-        print(f"Invalid Response Received: \"{exitState}\"")
-        exitPrompt()
+        exit()
 
 def main(startState=0, newDifficulty=1):
     args = parseargs()
