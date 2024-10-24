@@ -12,9 +12,10 @@ Repository Structure
 .
 ├── README.md
 ├── gameTools                   <- All tools for Dungeon Masters.
-│   ├── playerManager.py        <- Core module that grants player management capabilites to all other tools.
+│   ├── coreModules             <- All core modules used as dependencies for other tools.
+│   │    └──playerManager.py        <- Core module that grants player management capabilites to all other tools.
 │   ├── prepTools               <- Tools used during preparation for sessions.
-│   │    └── lootGenerator.py    <- A tool to generate treasure hoards based on party size, level, dungeon size, and difficulty.
+│   │    └── lootGenerator.py   <- A tool to generate treasure hoards based on party size, level, dungeon size, and difficulty.
 │   └── sessionTools            <- Tools used during sessions to assist in running the game.
 └── savedData                   <- Data generated and read by gameTools, stored in .tsv format.
     ├── lootByLevel.tsv         <- Loot by level chart used for generating treasure hoards.

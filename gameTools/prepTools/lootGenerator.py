@@ -4,8 +4,7 @@ import os
 import sys
 import argparse as ap
 import numpy as np
-sys.path.append("../")
-from playerManager import *
+from gameTools.coreModules.playerManager import *
 
 def parseargs():
     parser = ap.ArgumentParser(description='Generates Level Appropriate Loot for a Dungeon')
@@ -35,7 +34,7 @@ def generateTreasure(difficulty, players):
         if roomTreasure > 0 and roomTreasure > 1:
             print(f"## Treasure {room + 1}\t{roomTreasure} SP")
         if roomTreasure > 0 and roomTreasure < 1:
-            print(f"## Treasure {room + 1}\t{roomTreasure * 100} CP")
+            print(f"## Treasure {room + 1}\t{float(format(roomTreasure * 100,'.2f'))} CP")
     
 
 def exitPrompt():
