@@ -1,11 +1,12 @@
 import os
-from typing import Literal, Tuple
+from typing import Literal, Tuple, TypeVar
 
 import numpy as np
 from numpy.typing import DTypeLike
 
 _fileModes = Literal['r','r+','w+']
 _displayModes = Literal['all','description','gameEffect']
+PathLike = TypeVar(str, bytes, os.PathLike)
 
 class weatherData:
     """
@@ -19,7 +20,7 @@ class weatherData:
         Possible fog values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
         Possible cloud cover values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
     """
-    def __init__(self, file: str, mode: _fileModes = 'r'):
+    def __init__(self, file: PathLike, mode: _fileModes = 'r'):
         # Initialize Properties for memmap
         self.file = file
         self.mode = mode
@@ -32,7 +33,7 @@ class weatherData:
     def __len__(self):
         return self.arrWeather.shape[0]
 
-    def memmap(self, file: str, shape: int | Tuple[int,...], dtype: DTypeLike, mode: _fileModes = 'r'):
+    def memmap(self, file: PathLike, shape: int | Tuple[int,...], dtype: DTypeLike, mode: _fileModes = 'r'):
         """
         Maps a weather data array to a file on memory and makes it accessible as a numpy arrayLike.
 
