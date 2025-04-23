@@ -530,6 +530,7 @@ class weatherData:
             if rangedWeaponAttackPenalty != 0: print(f"Creatures have a {rangedWeaponAttackPenalty} Penalty to Ranged Weapon Attacks.")
         return None
 
+
 if __name__ == "__main__":
     dataTest = weatherData("../../savedData/asiir.dat",'r')
     dataTest.displayWeather()
