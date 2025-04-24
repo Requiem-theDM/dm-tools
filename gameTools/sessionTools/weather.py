@@ -4,9 +4,9 @@ from typing import Literal, Tuple
 import numpy as np
 from numpy.typing import DTypeLike
 
-_fileModes = Literal['r','r+','w+']
-_displayModes = Literal['all','description','gameEffect']
-_PathLike = str | bytes | os.PathLike
+type _fileModes = Literal['r','r+','w+']
+type _displayModes = Literal['all','description','gameEffect']
+type _PathLike = str | bytes | os.PathLike
 
 class weatherData:
     """
@@ -532,5 +532,5 @@ class weatherData:
 
 
 if __name__ == "__main__":
-    dataTest = weatherData("../../savedData/asiir.dat",'r')
+    dataTest = weatherData("../../savedData/weather/asiir.dat",'r')
     dataTest.displayWeather()
