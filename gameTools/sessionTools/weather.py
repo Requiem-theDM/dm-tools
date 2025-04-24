@@ -1,12 +1,12 @@
 import os
-from typing import Literal, Tuple, TypeVar
+from typing import Literal, Tuple
 
 import numpy as np
 from numpy.typing import DTypeLike
 
 _fileModes = Literal['r','r+','w+']
 _displayModes = Literal['all','description','gameEffect']
-PathLike = TypeVar(str, bytes, os.PathLike)
+_PathLike = str | bytes | os.PathLike
 
 class weatherData:
     """
@@ -20,7 +20,7 @@ class weatherData:
         Possible fog values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
         Possible cloud cover values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
     """
-    def __init__(self, file: PathLike, mode: _fileModes = 'r'):
+    def __init__(self, file: _PathLike, mode: _fileModes = 'r'):
         # Initialize Properties for memmap
         self.file = file
         self.mode = mode
@@ -33,19 +33,19 @@ class weatherData:
     def __len__(self):
         return self.arrWeather.shape[0]
 
-    def memmap(self, file: PathLike, shape: int | Tuple[int,...], dtype: DTypeLike, mode: _fileModes = 'r'):
+    def memmap(self, file: _PathLike, shape: int | Tuple[int,...], dtype: DTypeLike, mode: _fileModes = 'r'):
         """
         Maps a weather data array to a file on memory and makes it accessible as a numpy arrayLike.
 
         Parameters
         ----------
-        file : str
+        file : str | bytes | os.PathLike
             The binary file to be opened.
         shape : int | Tuple[int,...]
             The dimensions of the array to be created.
         dtype : numpy.typing.DtypeLike
             The data type of each element of the array.
-        mode : Literal['r','r+','w+']
+        mode : 'r', 'r+', 'w+'
             The mode with which to map the data array.
             Possible Values: 'r': Read only. 'r+': Read/write. 'w+": Overwrite.
             Defaults to 'r'
@@ -410,7 +410,7 @@ class weatherData:
 
         Parameters
         ----------
-        displayMode : Literal['all','description','gameEffect']
+        displayMode : 'all', 'description', 'gameEffect'
             The type of display to perform from the weather array values.
             Possible Values: 'all': Both modes are performed. 'description': Print only descriptive texts. 'gameEffect": Print only mechanical effects.
             Defaults to 'all'
