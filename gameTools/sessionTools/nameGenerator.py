@@ -3,7 +3,7 @@ from typing import Iterable
 import numpy as np
 from numpy.typing import NDArray
 
-def generateNames(syllables : Iterable[str], numNames : int = 100, maxSyllables : int = 3, minSyllables : int = 2) -> NDArray[np.str_]:
+def generateNames(syllables : Iterable[str], numNames : int = 100, minSyllables : int = 2, maxSyllables : int = 3) -> NDArray[np.str_]:
     """
     Generates an array of the requested numer of names from a list of syllables, with minimum and maximum number of syllables as specified by the user.
 
@@ -14,12 +14,12 @@ def generateNames(syllables : Iterable[str], numNames : int = 100, maxSyllables 
     numNames : int
         Sets the number of names to be generated.
         Defaults to 100
-    maxSyllables: int
-        Sets the maximum number of syllables a generated name can have.
-        Defaults to 3
     minSyllables: int
         Sets the minimum number of syllables a generated name can have.
         Defaults to 2
+    maxSyllables: int
+        Sets the maximum number of syllables a generated name can have.
+        Defaults to 3
 
     Returns
     -------
@@ -46,4 +46,4 @@ if __name__ == "__main__":
             "nor", "kor", "bor", "tor", "lor", "vor", "zor", "or", "er", "ar", "an", "en", "in", "on", "un", "shan", "thar", "quin", "gral", "clor",
             "a", "e", "i", "o", "u", "yo"
         ]
-    print(*generateNames(syllables,1000,3,2))
+    print(*generateNames(syllables,1000,2,3))

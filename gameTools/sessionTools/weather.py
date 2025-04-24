@@ -4,9 +4,9 @@ from typing import Literal, Tuple
 import numpy as np
 from numpy.typing import DTypeLike
 
-type _fileModes = Literal['r','r+','w+']
-type _displayModes = Literal['all','description','gameEffect']
-type _PathLike = str | bytes | os.PathLike
+type _fileModesT = Literal['r','r+','w+']
+type _displayModesT = Literal['all','description','gameEffect']
+type _pathLikeT = str | bytes | os.PathLike
 
 class weatherData:
     """
@@ -20,7 +20,7 @@ class weatherData:
         Possible fog values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
         Possible cloud cover values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
     """
-    def __init__(self, file: _PathLike, mode: _fileModes = 'r'):
+    def __init__(self, file: _pathLikeT, mode: _fileModesT = 'r'):
         # Initialize Properties for memmap
         self.file = file
         self.mode = mode
@@ -33,7 +33,7 @@ class weatherData:
     def __len__(self):
         return self.arrWeather.shape[0]
 
-    def memmap(self, file: _PathLike, shape: int | Tuple[int,...], dtype: DTypeLike, mode: _fileModes = 'r'):
+    def memmap(self, file: _pathLikeT, shape: int | Tuple[int,...], dtype: DTypeLike, mode: _fileModesT = 'r'):
         """
         Maps a weather data array to a file on memory and makes it accessible as a numpy arrayLike.
 
@@ -117,8 +117,8 @@ class weatherData:
                               precipitation if precipitation else self.arrWeather[5],
                               fog if fog else self.arrWeather[6],
                               cloudCover if cloudCover else self.arrWeather[7]]
-        if flush == True: self.arrWeather.flush()
-        return None
+        if flush is True:
+            self.arrWeather.flush()
 
     def randomizeWeather(self, flush : bool = True):
         """
@@ -140,8 +140,8 @@ class weatherData:
         self.updatePrecipitation(flush = False)
         self.updateObscurement(flush = False)
         self.updateClouds(flush = False)
-        if flush == True: self.arrWeather.flush()
-        return None
+        if flush is True:
+            self.arrWeather.flush()
         
     def updateWind(self, flush : bool = True):
         """
@@ -189,9 +189,9 @@ class weatherData:
             else 0
         # Bound minimum and maximum wind values
         self.arrWeather[3] = min(3,max(0,self.arrWeather[3] + randomization + altitudeChange + climateChange + seasonChange))
-        if flush == True: self.arrWeather.flush()
-        return None
-    
+        if flush is True:
+            self.arrWeather.flush()
+   
     def updateTemperature(self, flush : bool = True):
         """
         Updates temperature value based on altitude, climate, season, previous temperature, and wind.
@@ -246,8 +246,7 @@ class weatherData:
         newTemperature = baseTemp + randomization + altitudeFactor + seasonFactor + windChill
         # Average the new temperature with the previous one so that extreme values return to the mean
         self.arrWeather[4] = int(newTemperature + self.arrWeather[4])**0.5
-        if flush == True: self.arrWeather.flush()
-        return None
+        if flush is True: self.arrWeather.flush()
     
     def updatePrecipitation(self, flush : bool = True):
         """
@@ -295,8 +294,8 @@ class weatherData:
             else 0
         # Bound minimum and maximum precipitation values
         self.arrWeather[5] = min(3,max(0,self.arrWeather[5] + randomization + altitudeChange + climateChange + seasonChange))
-        if flush == True: self.arrWeather.flush()
-        return None
+        if flush is True:
+            self.arrWeather.flush()
     
     def updateObscurement(self, flush : bool = True):
         """
@@ -348,8 +347,8 @@ class weatherData:
             else 0
         # Bound minimum and maximum fog values
         self.arrWeather[6] = min(3,max(0,self.arrWeather[6] + randomization + altitudeChange + climateChange + seasonChange + windChange))
-        if flush == True: self.arrWeather.flush()
-        return None
+        if flush is True:
+            self.arrWeather.flush()
     
     def updateClouds(self, flush : bool = True):
         """
@@ -401,10 +400,10 @@ class weatherData:
             else 0
         # Bound minimum and maximum cloud cover values
         self.arrWeather[7] = min(3,max(0,self.arrWeather[7] + randomization + altitudeChange + climateChange + seasonChange + precipitationChange))
-        if flush == True: self.arrWeather.flush()
-        return None
+        if flush is True:
+            self.arrWeather.flush()
 
-    def displayWeather(self, displayMode : _displayModes = 'all'):
+    def displayWeather(self, displayMode : _displayModesT = 'all'):
         """
         Displays description of weather and/or game mechanical effects based on the weather array.
 
@@ -461,8 +460,8 @@ class weatherData:
             elif self.arrWeather[4] <= 32: print("Extreme Cold is in effect.")
             print(f"The High Temperature is {self.arrWeather[4] + 10} and the Low Temperature is {self.arrWeather[4] - 10}.")
             if self.arrWeather[3] != 0: print(f"There are {windDisplay} Winds.")
-            if dustStorm == True: print("A dust storm will occur today.")
-            elif thunderstorm == True: print(f"A thunderstorm will occur today with {precipitationDisplay} {precipType}.")
+            if dustStorm is True: print("A dust storm will occur today.")
+            elif thunderstorm is True: print(f"A thunderstorm will occur today with {precipitationDisplay} {precipType}.")
             elif self.arrWeather[5] != 0: print(f"{precipitationDisplay} {precipType} will occur today.")
             if self.arrWeather[6] != 0: print(f"There is {obscurementDisplay} Fog.")
             if self.arrWeather[7] != 0: print(f"There is {cloudCoverDisplay} Cloud Cover.")
@@ -477,7 +476,7 @@ class weatherData:
             rangedWeaponAttackPenalty = 0
             travelPaceMult = 1
             # Calculate game effects based on weather conditions
-            if dustStorm == True:
+            if dustStorm is True:
                 encounterDistance /= 2
                 surpriseChance += 1
                 sightPerceptionPenalty -=4
@@ -528,7 +527,6 @@ class weatherData:
             if hearingPerceptionPenalty != 0: print(f"Creatures have a {hearingPerceptionPenalty} Penalty to Perception that relies on sight.")
             print(f"Enclosed Encounters Occur: 2d10 x {int(encounterDistance * 6)} feet apart\nWide Open Encounters Occur: 4d10 x {int(encounterDistance * 12)} feet apart.")
             if rangedWeaponAttackPenalty != 0: print(f"Creatures have a {rangedWeaponAttackPenalty} Penalty to Ranged Weapon Attacks.")
-        return None
 
 
 if __name__ == "__main__":

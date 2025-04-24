@@ -2,3 +2,4 @@
 /gameTools/__pycache__
 gameTools/sessionTools/.DS_Store
 savedData/.DS_Store
+.vscode/settings.json
