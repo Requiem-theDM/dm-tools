@@ -1,5 +1,5 @@
 """
-This module provides a function to generate names from a provided list of syllables.
+This module provides the generateNames function to generate names from a provided list of syllables.
 """
 
 from typing import Iterable
