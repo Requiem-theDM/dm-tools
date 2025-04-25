@@ -1,16 +1,21 @@
+"""
+This module provides access to the weatherData class, \
+which is used to generate random weather patterns for the Book of Trials TTRPG ruleset.
+"""
 import os
 from typing import Literal, Tuple
 
 import numpy as np
 from numpy.typing import DTypeLike
 
-type _fileModesT = Literal['r','r+','w+']
-type _displayModesT = Literal['all','description','gameEffect']
-type _pathLikeT = str | bytes | os.PathLike
+type _FileModesType = Literal['r','r+','w+']
+type _DisplayModesType = Literal['all','description','gameEffect']
+type _PathLikeType = str | bytes | os.PathLike
 
 class weatherData:
     """
-    Provides methods for generating, reading, manipulating, and displaying weather data arrays based on the following values.
+    Provides methods for generating, reading, manipulating, \
+    and displaying weather data arrays based on the following values.
         Possible altitude values: [0-4]: 'None', 'Low', 'Moderate', 'High', 'Extreme'
         Possible climate values: [0-4]: 'Cold', 'Cool', 'Temperate', 'Warm', 'Hot'
         Possible season values: [0-3]: 'Spring', 'Summer', 'Autumn', 'Winter'
@@ -20,7 +25,7 @@ class weatherData:
         Possible fog values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
         Possible cloud cover values: [0-3]: 'None', 'Low', 'Moderate', 'Heavy'
     """
-    def __init__(self, file: _pathLikeT, mode: _fileModesT = 'r'):
+    def __init__(self, file: _PathLikeType, mode: _FileModesType = 'r'):
         # Initialize Properties for memmap
         self.file = file
         self.mode = mode
@@ -33,7 +38,10 @@ class weatherData:
     def __len__(self):
         return self.arrWeather.shape[0]
 
-    def memmap(self, file: _pathLikeT, shape: int | Tuple[int,...], dtype: DTypeLike, mode: _fileModesT = 'r'):
+    def memmap(self, file: _PathLikeType,
+               shape: int | Tuple[int,...],
+               dtype: DTypeLike,
+               mode: _FileModesType = 'r'):
         """
         Maps a weather data array to a file on memory and makes it accessible as a numpy arrayLike.
 
@@ -60,12 +68,21 @@ class weatherData:
             print(f"File: {file} was not found, creating memory mapped file.")
             self.arrWeather = np.memmap(filename = file, mode = 'w+', shape = shape, dtype = dtype)
         else:
-            raise FileNotFoundError(f"File: {file} was not found, and can not be created in {mode} mode.")
-        return None
-    
-    def setWeather(self, altitude : int = None, climate : int = None, season : int = None, wind : int = None, temperature : int = None, precipitation : int = None, fog : int = None, cloudCover : int = None, flush : bool = True):
+            raise FileNotFoundError(f"File: {file} was not found,\
+                                     and can not be created in {mode} mode.")
+
+    def setWeather(self,
+                   altitude : int = None,
+                   climate : int = None,
+                   season : int = None,
+                   wind : int = None,
+                   temperature : int = None,
+                   precipitation : int = None,
+                   fog : int = None,
+                   cloudCover : int = None,
+                   flush : bool = True):
         """
-        Allows manual updating of all weather values in the weather data array if it is not open in read only mode.
+        Allows manual updating of all weather values in the weather data array.
 
         Parameters
         ----------
@@ -108,7 +125,8 @@ class weatherData:
         None if the weather array was successfully updated.
         """
         if self.mode == 'r':
-            raise Exception(f"File: {self.file} is opened in {self.mode} mode and thus cannot be updated.")
+            raise ValueError(f"File: {self.file} is opened in {self.mode} mode\
+                              and thus cannot be updated.")
         self.arrWeather[:] = [altitude if altitude else self.arrWeather[0],
                               climate if climate else self.arrWeather[1],
                               season if season else self.arrWeather[2],
@@ -122,7 +140,7 @@ class weatherData:
 
     def randomizeWeather(self, flush : bool = True):
         """
-        Randomly progresses all weather values in the weather data array if it is not open in read only mode.
+        Randomly progresses all weather values in the weather data array.
 
         Parameters
         ----------
@@ -134,7 +152,8 @@ class weatherData:
         None if the weather array was successfully updated.
         """
         if self.mode == 'r':
-            raise Exception(f"File: {self.file} is opened in {self.mode} mode and thus cannot be updated.")
+            raise ValueError(f"File: {self.file} is opened in {self.mode} mode\
+                              and thus cannot be updated.")
         self.updateWind(flush = False)
         self.updateTemperature(flush = False)
         self.updatePrecipitation(flush = False)
@@ -142,11 +161,11 @@ class weatherData:
         self.updateClouds(flush = False)
         if flush is True:
             self.arrWeather.flush()
-        
+
     def updateWind(self, flush : bool = True):
         """
         Updates wind value based on altitude, climate, season, and previous wind values.
-    
+
         Parameters
         ----------
         flush : bool
@@ -157,7 +176,8 @@ class weatherData:
         None if the weather array was successfully updated.
         """
         if self.mode == 'r':
-            raise Exception(f"File: {self.file} is opened in {self.mode} mode and thus cannot be updated.")
+            raise ValueError(f"File: {self.file} is opened in {self.mode} mode\
+                              and thus cannot be updated.")
         # Generate 2d6 for randomizing wind value, weighted towards returning to no wind
         diceRoll = np.sum(np.random.randint(1,7,2))
         randomization = -2 if diceRoll in [2] \
@@ -165,7 +185,7 @@ class weatherData:
             else 0 if diceRoll in [7,8,9,10] \
             else 1 if diceRoll in [11] \
             else 2
-        # Generate random floats to determine if wind value changes for altitude, climate, and season
+        # Generate floats to determine if wind value changes for altitude, climate, and season
         windChangeChance = np.random.random(3)
         # Alter wind value by altitude
         altitudeChange = 1 if any([
@@ -188,13 +208,20 @@ class weatherData:
             else 1 if self.arrWeather[2] == 3 and windChangeChance[2] <= 0.15 \
             else 0
         # Bound minimum and maximum wind values
-        self.arrWeather[3] = min(3,max(0,self.arrWeather[3] + randomization + altitudeChange + climateChange + seasonChange))
+        self.arrWeather[3] = min(3,
+                             max(0,
+                                self.arrWeather[3] + \
+                                randomization + \
+                                altitudeChange + \
+                                climateChange + \
+                                seasonChange
+                            ))
         if flush is True:
             self.arrWeather.flush()
-   
+
     def updateTemperature(self, flush : bool = True):
         """
-        Updates temperature value based on altitude, climate, season, previous temperature, and wind.
+        Updates temperature based on altitude, climate, season, previous temperature, and wind.
 
         Parameters
         ----------
@@ -206,7 +233,8 @@ class weatherData:
         None if the weather array was successfully updated.
         """
         if self.mode == 'r':
-            raise Exception(f"File: {self.file} is opened in {self.mode} mode and thus cannot be updated.")
+            raise ValueError(f"File: {self.file} is opened in {self.mode} mode\
+                              and thus cannot be updated.")
         # Set base temperature depending on climate
         baseTemp = 75 if self.arrWeather[1] == 4 \
             else 65 if self.arrWeather[1] == 3 \
@@ -244,10 +272,11 @@ class weatherData:
             else 0
         # Calculate the new temperature based on current conditions
         newTemperature = baseTemp + randomization + altitudeFactor + seasonFactor + windChill
-        # Average the new temperature with the previous one so that extreme values return to the mean
+        # Average the new and previosu temperature to prevent wild fluctuations
         self.arrWeather[4] = int(newTemperature + self.arrWeather[4])**0.5
-        if flush is True: self.arrWeather.flush()
-    
+        if flush is True:
+            self.arrWeather.flush()
+
     def updatePrecipitation(self, flush : bool = True):
         """
         Updates precipitation value based on altitude, climate, previous precipitation, and season.
@@ -262,15 +291,18 @@ class weatherData:
         None if the weather array was successfully updated.
         """
         if self.mode == 'r':
-            raise Exception(f"File: {self.file} is opened in {self.mode} mode and thus cannot be updated.")
-       # Generate 2d6 for randomizing precipitation value, weighted towards returning to no precipitation
+            raise ValueError(f"File: {self.file} is opened in {self.mode} mode\
+                              and thus cannot be updated.")
+       # Generate 2d6 for randomizing precipitation value
+       # Weighted towards returning to no precipitation
         diceRoll = np.sum(np.random.randint(1,7,2))
         randomization = -2 if diceRoll in [2] \
             else -1 if diceRoll in [3,4,5,6] \
             else 0 if diceRoll in [7,8,9,10] \
             else 1 if diceRoll in [11] \
             else 2
-        # Generate random floats to determine if precipitation changes based on altitude, climate, and season
+        # Generate floats to determine if precipitation changes
+        # Based on altitude, climate, and season
         precipChangeChance = np.random.random(3)
         # Alter precipitation value by altitude
         altitudeChange = 1 if any([
@@ -293,10 +325,17 @@ class weatherData:
             else 1 if self.arrWeather[2] == 3 and precipChangeChance[2] <= 0.10 \
             else 0
         # Bound minimum and maximum precipitation values
-        self.arrWeather[5] = min(3,max(0,self.arrWeather[5] + randomization + altitudeChange + climateChange + seasonChange))
+        self.arrWeather[5] = min(3,
+                             max(0,
+                                self.arrWeather[5] + \
+                                randomization + \
+                                altitudeChange + \
+                                climateChange + \
+                                seasonChange
+                            ))
         if flush is True:
             self.arrWeather.flush()
-    
+
     def updateObscurement(self, flush : bool = True):
         """
         Updates fog value based on altitude, climate, previous fog, season, and wind.
@@ -311,15 +350,18 @@ class weatherData:
         None if the weather array was successfully updated.
         """
         if self.mode == 'r':
-            raise Exception(f"File: {self.file} is opened in {self.mode} mode and thus cannot be updated.")
-       # Generate 2d6 for randomizing fog value, weighted towards returning to no fog
+            raise ValueError(f"File: {self.file} is opened in {self.mode} mode\
+                              and thus cannot be updated.")
+       # Generate 2d6 for randomizing fog value
+       # Weighted towards returning to no fog
         diceRoll = np.sum(np.random.randint(1,7,2))
         randomization = -2 if diceRoll in [2] \
             else -1 if diceRoll in [3,4,5,6] \
             else 0 if diceRoll in [7,8,9,10] \
             else 1 if diceRoll in [11] \
             else 2
-        # Generate random floats to determine if fog changes based on altitude, climate, season, and wind
+        # Generate floats to determine if fog changes
+        # Based on altitude, climate, season, and wind
         obscurementChangeChance = np.random.random(4)
         # Alter fog value by altitude
         altitudeChange = -2 if self.arrWeather[0] == 4 \
@@ -346,13 +388,22 @@ class weatherData:
             else -1 if self.arrWeather[3] == 1 and obscurementChangeChance[3] <= 0.25 \
             else 0
         # Bound minimum and maximum fog values
-        self.arrWeather[6] = min(3,max(0,self.arrWeather[6] + randomization + altitudeChange + climateChange + seasonChange + windChange))
+        self.arrWeather[6] = min(3,
+                             max(0,
+                                self.arrWeather[6] + \
+                                randomization + \
+                                altitudeChange + \
+                                climateChange + \
+                                seasonChange + \
+                                windChange
+                            ))
         if flush is True:
             self.arrWeather.flush()
-    
+
     def updateClouds(self, flush : bool = True):
         """
-        Updates cloud cover value based on altitude, climate, previous cloud cover, precipitation, and season.
+        Updates cloud cover based on altitude, climate, \
+        previous cloud cover, precipitation, and season.
 
         Parameters
         ----------
@@ -364,15 +415,18 @@ class weatherData:
         None if the weather array was successfully updated.
         """
         if self.mode == 'r':
-            raise Exception(f"File: {self.file} is opened in {self.mode} mode and thus cannot be updated.")
-       # Generate 2d6 for randomizing cloud cover value, weighted towards returning to no clouds
+            raise ValueError(f"File: {self.file} is opened in {self.mode} mode\
+                              and thus cannot be updated.")
+       # Generate 2d6 for randomizing cloud cover value
+       # Weighted towards returning to no clouds
         diceRoll = np.sum(np.random.randint(1,7,2))
         randomization = -2 if diceRoll in [2] \
             else -1 if diceRoll in [3,4,5,6] \
             else 0 if diceRoll in [7,8,9,10] \
             else 1 if diceRoll in [11] \
             else 2
-        # Generate random floats to determine if clouds changes based on altitude, climate, season, and weather
+        # Generate random floats to determine if clouds changes
+        # Based on altitude, climate, season, and weather
         cloudsChangeChance = np.random.random(4)
         # Alter clouds value by altitude
         altitudeChange = 2 if self.arrWeather[0] == 4 \
@@ -399,11 +453,19 @@ class weatherData:
             else 1 if self.arrWeather[5] == 1 and cloudsChangeChance[3] <= 0.25 \
             else 0
         # Bound minimum and maximum cloud cover values
-        self.arrWeather[7] = min(3,max(0,self.arrWeather[7] + randomization + altitudeChange + climateChange + seasonChange + precipitationChange))
+        self.arrWeather[7] = min(3,
+                             max(0,
+                                self.arrWeather[7] + \
+                                randomization + \
+                                altitudeChange + \
+                                climateChange + \
+                                seasonChange + \
+                                precipitationChange
+                            ))
         if flush is True:
             self.arrWeather.flush()
 
-    def displayWeather(self, displayMode : _displayModesT = 'all'):
+    def displayWeather(self, displayMode : _DisplayModesType = 'all'):
         """
         Displays description of weather and/or game mechanical effects based on the weather array.
 
@@ -411,7 +473,10 @@ class weatherData:
         ----------
         displayMode : 'all', 'description', 'gameEffect'
             The type of display to perform from the weather array values.
-            Possible Values: 'all': Both modes are performed. 'description': Print only descriptive texts. 'gameEffect": Print only mechanical effects.
+            Possible Values:
+                'all': Both modes are performed.
+                'description': Print only descriptive texts.
+                'gameEffect": Print only mechanical effects.
             Defaults to 'all'
 
         Returns
@@ -432,18 +497,27 @@ class weatherData:
             # Determine if a thunderstorm occurs
             if self.arrWeather[5] == 3:
                 thunderstormChance = np.random.random()
-                if self.arrWeather[2] == 0 and thunderstormChance <= 0.12 or \
-                self.arrWeather[2] == 1 and thunderstormChance <= 0.20 or \
-                self.arrWeather[2] == 2 and thunderstormChance <= 0.07 or \
-                self.arrWeather[2] == 3 and thunderstormChance <= 0.01:
+                if self.arrWeather[2] == 0 and thunderstormChance <= 0.12:
                     thunderstorm = True
+                if self.arrWeather[2] == 1 and thunderstormChance <= 0.20:
+                    thunderstorm = True
+                if self.arrWeather[2] == 2 and thunderstormChance <= 0.07:
+                    thunderstorm = True
+                if self.arrWeather[2] == 3 and thunderstormChance <= 0.01:
+                    thunderstorm = True
+
             # Determine precipiration type
             altPrecipChances = np.random.random(2)
-            if self.arrWeather[4] <= 32 and altPrecipChances[0] <= 0.25: precipType = 'Freezing Rain'
-            elif self.arrWeather[4] <= 32: precipType = 'Snow'
-            elif 33 <= self.arrWeather[4] <= 38: precipType = 'Sleet'
-            elif altPrecipChances[1] <= 0.10: precipType = 'Hail'
-            else: precipType = 'Rain'
+            if self.arrWeather[4] <= 32 and altPrecipChances[0] <= 0.25:
+                precipType = 'Freezing Rain'
+            elif self.arrWeather[4] <= 32:
+                precipType = 'Snow'
+            elif 33 <= self.arrWeather[4] <= 38:
+                precipType = 'Sleet'
+            elif altPrecipChances[1] <= 0.10:
+                precipType = 'Hail'
+            else:
+                precipType = 'Rain'
         # Provide descriptive text for the weather array
         if displayMode in ['all', 'description']:
             # Set display strings from weather array data
@@ -455,16 +529,27 @@ class weatherData:
             obscurementDisplay = ['None', 'Light', 'Moderate', 'Heavy'][self.arrWeather[6]]
             cloudCoverDisplay = ['None', 'Light', 'Moderate', 'Heavy'][self.arrWeather[7]]
             # Print the resulting descriptive text
-            print(f"Weather was generated for {seasonDisplay} in a {climateDisplay} climate{f' at {altitudeDisplay} altitude' if self.arrWeather[0] != 0 else ''}.")
-            if self.arrWeather[4] >= 90: print("Extreme Heat is in effect.")
-            elif self.arrWeather[4] <= 32: print("Extreme Cold is in effect.")
-            print(f"The High Temperature is {self.arrWeather[4] + 10} and the Low Temperature is {self.arrWeather[4] - 10}.")
-            if self.arrWeather[3] != 0: print(f"There are {windDisplay} Winds.")
-            if dustStorm is True: print("A dust storm will occur today.")
-            elif thunderstorm is True: print(f"A thunderstorm will occur today with {precipitationDisplay} {precipType}.")
-            elif self.arrWeather[5] != 0: print(f"{precipitationDisplay} {precipType} will occur today.")
-            if self.arrWeather[6] != 0: print(f"There is {obscurementDisplay} Fog.")
-            if self.arrWeather[7] != 0: print(f"There is {cloudCoverDisplay} Cloud Cover.")
+            print(f"Weather was generated for {seasonDisplay}\
+                   in a {climateDisplay} climate\
+                    {f' at {altitudeDisplay} altitude' if self.arrWeather[0] != 0 else ''}.")
+            if self.arrWeather[4] >= 90:
+                print("Extreme Heat is in effect.")
+            elif self.arrWeather[4] <= 32:
+                print("Extreme Cold is in effect.")
+            print(f"The High Temperature is {self.arrWeather[4] + 10}\
+                   and the Low Temperature is {self.arrWeather[4] - 10}.")
+            if self.arrWeather[3] != 0:
+                print(f"There are {windDisplay} Winds.")
+            if dustStorm is True:
+                print("A dust storm will occur today.")
+            elif thunderstorm is True:
+                print(f"A thunderstorm will occur today with {precipitationDisplay} {precipType}.")
+            elif self.arrWeather[5] != 0:
+                print(f"{precipitationDisplay} {precipType} will occur today.")
+            if self.arrWeather[6] != 0:
+                print(f"There is {obscurementDisplay} Fog.")
+            if self.arrWeather[7] != 0:
+                print(f"There is {cloudCoverDisplay} Cloud Cover.")
 
         # Provide mechanical effects for the weather array
         if displayMode in ['all', 'gameEffect']:
@@ -510,23 +595,56 @@ class weatherData:
                 rangedWeaponAttackPenalty -=2
             # Print the resulting game mechanics text
             print("Travel Effects")
-            if self.arrWeather[4] >= 90: print("Characters gain Fatigue equal to 1d4 plus their Encumbrance at the end of each period of Extended Travel. This increases by 1 if the creature is wearing Medium or Heavy Armor or has any Encumbrance.")
-            elif self.arrWeather[4] <= 32: print("Characters gain Fatigue equal to 1d4 plus their Encumbrance at the end of each period of Extended Travel.")
-            else: print("Characters gain Fatigue equal to their Encumbrance at the end of each period of Extended Travel.")
-            if travelPaceMult == 1/2: print(f"The party's Travel Pace is halved.")
-            if travelPaceMult == 1/4: print(f"The party's Travel Pace is quartered.")
-            if dustStorm: print("Unprotected creatures take 1 Slashing Damage at the end of each hour they spend exposed to the storm.")
-            if precipType in ['Hail', 'Sleet'] and self.arrWeather[5] == 3: print(f"Unprotected creatures take 1 Bludgeoning Damage at the end of each hour they spend exposed to the storm.")
-            if thunderstorm: print("Each hour there is a 1 / 100 chance of lightning striking near a group of travelers. If lightning strikes near a group of travelers, there is a 1 / 100 chance for a character at random to be struck, or a 1 / 10 chance if that character is wearing Heavy Armor. The struck creature is Dazed for 1 hour and must make a Fortitude Saving Throw. A creature takes 2d12 Lightning Damage on a failed saving throw, or half as much on a success.")
-            if self.arrWeather[3] == 3: print("The High Winds count as Difficult Terrain for flying creatures and disperse fog and mists.")
-            if precipType == 'Rain' and self.arrWeather[5] == 3: print("Flash floods may occur.")
-            if precipType == 'Rain' and self.arrWeather[5] != 0 or self.arrWeather[5] == 3: print("Open flames are extinguished.")
+            if self.arrWeather[4] >= 90:
+                print("Characters gain Fatigue equal to 1d4 plus their Encumbrance\
+                       at the end of each period of Extended Travel.\
+                       This increases by 1 if the creature is wearing Medium or Heavy Armor\
+                       or has any Encumbrance.")
+            elif self.arrWeather[4] <= 32:
+                print("Characters gain Fatigue equal to 1d4 plus their Encumbrance\
+                     at the end of each period of Extended Travel.")
+            else:
+                print("Characters gain Fatigue equal to their Encumbrance\
+                       at the end of each period of Extended Travel.")
+            if travelPaceMult == 1/2:
+                print("The party's Travel Pace is halved.")
+            if travelPaceMult == 1/4:
+                print("The party's Travel Pace is quartered.")
+            if dustStorm is True:
+                print("Unprotected creatures take 1 Slashing Damage\
+                       at the end of each hour they spend exposed to the storm.")
+            if precipType in ['Hail', 'Sleet'] and self.arrWeather[5] == 3:
+                print("Unprotected creatures take 1 Bludgeoning Damage\
+                       at the end of each hour they spend exposed to the storm.")
+            if thunderstorm is True:
+                print("Each hour there is a 1 / 100 chance of lightning striking near a\
+                       group of travelers. If lightning strikes near a group of travelers,\
+                       there is a 1 / 100 chance for a character at random to be struck,\
+                       or a 1 / 10 chance if that character is wearing Heavy Armor.\
+                       The struck creature is Dazed for 1 hour and must make a Fortitude Saving Throw.\
+                       A creature takes 2d12 Lightning Damage on a failed saving throw,\
+                       or half as much on a success.")
+            if self.arrWeather[3] == 3:
+                print("The High Winds count as Difficult Terrain for flying creatures\
+                       and disperse fog and mists.")
+            if precipType == 'Rain' and self.arrWeather[5] == 3:
+                print("Flash floods may occur.")
+            if precipType == 'Rain' and self.arrWeather[5] != 0 or self.arrWeather[5] == 3:
+                print("Open flames are extinguished.")
             print("Combat Effects")
-            print(f"If a side of a combat is unaware of the other's presence, they have a {surpriseChance} in 6 chance of being Surprised.")
-            if sightPerceptionPenalty != 0: print(f"Creatures have a {sightPerceptionPenalty} Penalty to Perception that relies on sight.")
-            if hearingPerceptionPenalty != 0: print(f"Creatures have a {hearingPerceptionPenalty} Penalty to Perception that relies on sight.")
-            print(f"Enclosed Encounters Occur: 2d10 x {int(encounterDistance * 6)} feet apart\nWide Open Encounters Occur: 4d10 x {int(encounterDistance * 12)} feet apart.")
-            if rangedWeaponAttackPenalty != 0: print(f"Creatures have a {rangedWeaponAttackPenalty} Penalty to Ranged Weapon Attacks.")
+            print(f"If a side of a combat is unaware of the other's presence,\
+                   they have a {surpriseChance} in 6 chance of being Surprised.")
+            if sightPerceptionPenalty != 0:
+                print(f"Creatures have a {sightPerceptionPenalty} Penalty\
+                       to Perception that relies on sight.")
+            if hearingPerceptionPenalty != 0:
+                print(f"Creatures have a {hearingPerceptionPenalty} Penalty\
+                       to Perception that relies on hearing.")
+            print(f"Enclosed Encounters Occur: 2d10 x {int(encounterDistance * 6)} feet apart\n \
+                  Wide Open Encounters Occur: 4d10 x {int(encounterDistance * 12)} feet apart.")
+            if rangedWeaponAttackPenalty != 0:
+                print(f"Creatures have a {rangedWeaponAttackPenalty} Penalty\
+                       to Ranged Weapon Attacks.")
 
 
 if __name__ == "__main__":
