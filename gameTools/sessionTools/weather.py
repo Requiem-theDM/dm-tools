@@ -1,6 +1,5 @@
 """
-This module provides access to the weatherData class, \
-which is used to generate random weather patterns for the Book of Trials TTRPG ruleset.
+This module provides access to the WeatherData class to generate random weather patterns for the Book of Trials TTRPG ruleset.
 """
 
 import os
@@ -14,7 +13,7 @@ type _DisplayModesType = Literal["all", "description", "gameEffect"]
 type _PathLikeType = str | bytes | os.PathLike
 
 
-class weatherData:
+class WeatherData:
     """
     Provides methods for generating, reading, manipulating, \
     and displaying weather data arrays based on the following values.
@@ -356,7 +355,7 @@ class weatherData:
             baseTemp + randomization + altitudeFactor + seasonFactor + windChill
         )
         # Average the new and previosu temperature to prevent wild fluctuations
-        self.arrWeather[4] = int(newTemperature + self.arrWeather[4]) ** 0.5
+        self.arrWeather[4] = int((newTemperature + self.arrWeather[4]) * 0.5)
         if flush is True:
             self.arrWeather.flush()
 
@@ -722,17 +721,14 @@ class weatherData:
             ]
             # Print the resulting descriptive text
             print(
-                f"Weather was generated for {seasonDisplay}\
-                   in a {climateDisplay} climate\
-                    {f' at {altitudeDisplay} altitude' if self.arrWeather[0] != 0 else ''}."
+                f"\x1b[4m# <<< Weather was generated for {seasonDisplay} in a {climateDisplay} climate{f' at {altitudeDisplay} altitude' if self.arrWeather[0] != 0 else ''}. >>> #\x1b[m"
             )
             if self.arrWeather[4] >= 90:
                 print("Extreme Heat is in effect.")
             elif self.arrWeather[4] <= 32:
                 print("Extreme Cold is in effect.")
             print(
-                f"The High Temperature is {self.arrWeather[4] + 10}\
-                   and the Low Temperature is {self.arrWeather[4] - 10}."
+                f"The High Temperature is {self.arrWeather[4] + 10} and the Low Temperature is {self.arrWeather[4] - 10}."
             )
             if self.arrWeather[3] != 0:
                 print(f"There are {windDisplay} Winds.")
@@ -792,23 +788,18 @@ class weatherData:
                 hearingPerceptionPenalty -= 4
                 rangedWeaponAttackPenalty -= 2
             # Print the resulting game mechanics text
-            print("Travel Effects")
+            print("\x1b[4m# <<< Travel Effects >>> #\x1b[m")
             if self.arrWeather[4] >= 90:
                 print(
-                    "Characters gain Fatigue equal to 1d4 plus their Encumbrance\
-                       at the end of each period of Extended Travel.\
-                       This increases by 1 if the creature is wearing Medium or Heavy Armor\
-                       or has any Encumbrance."
+                    "Characters gain Fatigue equal to 1d4 plus their Encumbrance at the end of each period of Extended Travel. This increases by 1 if the creature is wearing Medium or Heavy Armor or has any Encumbrance."
                 )
             elif self.arrWeather[4] <= 32:
                 print(
-                    "Characters gain Fatigue equal to 1d4 plus their Encumbrance\
-                     at the end of each period of Extended Travel."
+                    "Characters gain Fatigue equal to 1d4 plus their Encumbrance at the end of each period of Extended Travel."
                 )
             else:
                 print(
-                    "Characters gain Fatigue equal to their Encumbrance\
-                       at the end of each period of Extended Travel."
+                    "Characters gain Fatigue equal to their Encumbrance at the end of each period of Extended Travel."
                 )
             if travelPaceMult == 1 / 2:
                 print("The party's Travel Pace is halved.")
@@ -816,28 +807,19 @@ class weatherData:
                 print("The party's Travel Pace is quartered.")
             if dustStorm is True:
                 print(
-                    "Unprotected creatures take 1 Slashing Damage\
-                       at the end of each hour they spend exposed to the storm."
+                    "Unprotected creatures take 1 Slashing Damage at the end of each hour they spend exposed to the storm."
                 )
             if precipType in ["Hail", "Sleet"] and self.arrWeather[5] == 3:
                 print(
-                    "Unprotected creatures take 1 Bludgeoning Damage\
-                       at the end of each hour they spend exposed to the storm."
+                    "Unprotected creatures take 1 Bludgeoning Damage at the end of each hour they spend exposed to the storm."
                 )
             if thunderstorm is True:
                 print(
-                    "Each hour there is a 1 / 100 chance of lightning striking near a\
-                       group of travelers. If lightning strikes near a group of travelers,\
-                       there is a 1 / 100 chance for a character at random to be struck,\
-                       or a 1 / 10 chance if that character is wearing Heavy Armor.\
-                       The struck creature is Dazed for 1 hour and must make a Fortitude Saving Throw.\
-                       A creature takes 2d12 Lightning Damage on a failed saving throw,\
-                       or half as much on a success."
+                    "Each hour there is a 1 / 100 chance of lightning striking near a group of travelers. If lightning strikes near a group of travelers, there is a 1 / 100 chance for a character at random to be struck, or a 1 / 10 chance if that character is wearing Heavy Armor. The struck creature is Dazed for 1 hour and must make a Fortitude Saving Throw. A creature takes 2d12 Lightning Damage on a failed saving throw, or half as much on a success."
                 )
             if self.arrWeather[3] == 3:
                 print(
-                    "The High Winds count as Difficult Terrain for flying creatures\
-                       and disperse fog and mists."
+                    "The High Winds count as Difficult Terrain for flying creatures and disperse fog and mists."
                 )
             if precipType == "Rain" and self.arrWeather[5] == 3:
                 print("Flash floods may occur.")
@@ -847,32 +829,28 @@ class weatherData:
                 or self.arrWeather[5] == 3
             ):
                 print("Open flames are extinguished.")
-            print("Combat Effects")
+            print("\x1b[4m# <<< Combat Effects >>> #\x1b[m")
             print(
-                f"If a side of a combat is unaware of the other's presence,\
-                   they have a {surpriseChance} in 6 chance of being Surprised."
+                f"If a side of a combat is unaware of the other's presence, they have a {surpriseChance} in 6 chance of being Surprised."
             )
             if sightPerceptionPenalty != 0:
                 print(
-                    f"Creatures have a {sightPerceptionPenalty} Penalty\
-                       to Perception that relies on sight."
+                    f"Creatures have a {sightPerceptionPenalty} Penalty to Perception that relies on sight."
                 )
             if hearingPerceptionPenalty != 0:
                 print(
-                    f"Creatures have a {hearingPerceptionPenalty} Penalty\
-                       to Perception that relies on hearing."
+                    f"Creatures have a {hearingPerceptionPenalty} Penalty to Perception that relies on hearing."
                 )
             print(
-                f"Enclosed Encounters Occur: 2d10 x {int(encounterDistance * 6)} feet apart\n \
-                  Wide Open Encounters Occur: 4d10 x {int(encounterDistance * 12)} feet apart."
+                f"Enclosed Encounters Occur: 2d10 x {int(encounterDistance * 6)} feet apart.\nWide Open Encounters Occur: 4d10 x {int(encounterDistance * 12)} feet apart."
             )
             if rangedWeaponAttackPenalty != 0:
                 print(
-                    f"Creatures have a {rangedWeaponAttackPenalty} Penalty\
-                       to Ranged Weapon Attacks."
+                    f"Creatures have a {rangedWeaponAttackPenalty} Penalty to Ranged Weapon Attacks."
                 )
 
 
 if __name__ == "__main__":
-    dataTest = weatherData("../../savedData/weather/asiir.dat", "r")
+    dataTest = WeatherData("../../savedData/weather/asiir.dat", "r+")
+    dataTest.randomizeWeather()
     dataTest.displayWeather()
